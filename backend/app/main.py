@@ -11,7 +11,8 @@ from app.database import Base, engine, SessionLocal
 from app.models import User
 from app.security import hash_password
 from app.scheduler import scheduler_loop
-from app.routers import auth, devices, monitoring
+from app.routers import auth, devices, monitoring, users
+from sqlalchemy import text
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("netmonitor")
@@ -33,9 +34,19 @@ def seed_admin_user():
         db.close()
 
 
+def run_migrations():
+    """Migrações leves para bancos criados na V1."""
+    with engine.connect() as conn:
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'admin'"
+        ))
+        conn.commit()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    run_migrations()
     seed_admin_user()
     task = asyncio.create_task(scheduler_loop())
     logger.info("Aplicação iniciada.")
@@ -48,6 +59,7 @@ app = FastAPI(title="VMN Pulse", lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(devices.router)
 app.include_router(monitoring.router)
+app.include_router(users.router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -55,6 +67,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 def index():
     return FileResponse("static/index.html")
+
+
+@app.get("/correlation.html")
+def correlation_page():
+    return FileResponse("static/correlation.html")
 
 
 @app.get("/device.html")

@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     latency_warn_ms: int = 100
     loss_warn_pct: int = 20
     offline_confirm_cycles: int = 2
+    retention_detail_days: int = 30
 
     class Config:
         env_file = ".env"

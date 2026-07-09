@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Device
 from app.schemas import DeviceCreate, DeviceUpdate, DeviceOut
-from app.security import get_current_user
+from app.security import get_current_user, require_admin
 
 router = APIRouter(prefix="/api/devices", tags=["devices"], dependencies=[Depends(get_current_user)])
+admin_dep = [Depends(require_admin)]
 
 
 @router.get("", response_model=list[DeviceOut])
@@ -14,7 +15,7 @@ def list_devices(db: Session = Depends(get_db)):
     return db.query(Device).order_by(Device.name).all()
 
 
-@router.post("", response_model=DeviceOut, status_code=201)
+@router.post("", response_model=DeviceOut, status_code=201, dependencies=admin_dep)
 def create_device(payload: DeviceCreate, db: Session = Depends(get_db)):
     existing = db.query(Device).filter(Device.ip == payload.ip).first()
     if existing:
@@ -27,7 +28,7 @@ def create_device(payload: DeviceCreate, db: Session = Depends(get_db)):
     return device
 
 
-@router.put("/{device_id}", response_model=DeviceOut)
+@router.put("/{device_id}", response_model=DeviceOut, dependencies=admin_dep)
 def update_device(device_id: int, payload: DeviceUpdate, db: Session = Depends(get_db)):
     device = db.query(Device).get(device_id)
     if not device:
@@ -41,7 +42,7 @@ def update_device(device_id: int, payload: DeviceUpdate, db: Session = Depends(g
     return device
 
 
-@router.delete("/{device_id}", status_code=204)
+@router.delete("/{device_id}", status_code=204, dependencies=admin_dep)
 def delete_device(device_id: int, db: Session = Depends(get_db)):
     device = db.query(Device).get(device_id)
     if not device:

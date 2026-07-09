@@ -107,24 +107,32 @@ netmonitor/
 │       └── js/{api,dashboard,device}.js
 ```
 
-## Ideias para evoluir (não implementadas ainda)
+## Novidades da V2
 
-- **Telegram/WhatsApp**: dá pra adicionar do mesmo jeito que o Discord —
-  um bot do Telegram é tão simples quanto o webhook; WhatsApp geralmente exige
-  uma API paga (Twilio, Meta Cloud API) ou um gateway tipo Evolution API.
-- **Exportar CSV/Excel** da tabela ou do histórico de um equipamento.
-- **Botão de manutenção**: marcar um equipamento como "em manutenção" pra pausar
-  alertas sem excluir o cadastro (já existe o campo `is_active` no banco, só
-  falta um botão na tela pra alternar).
-- **Agrupar por localização/setor** na tabela (ex: todos os APs de um mesmo
-  bloco), útil pra identificar se a queda é por região da academia.
-- **Traceroute/MTR sob demanda** a partir do botão de log, pra investigar picos
-  de latência específicos.
-- **Retenção de dados**: o histórico de ping cresce (100 equipamentos × 1 ping/min
-  ≈ 144 mil linhas/dia). Vale criar uma rotina simples de limpeza (ex: manter
-  detalhe de 30 dias e, depois disso, só os agregados por hora).
-- **Multiusuário com permissões** (ex: um usuário só visualiza, outro edita).
-- **Correlação entre equipamentos**: comparar horários de queda entre vários
-  equipamentos da mesma área pra identificar se é o mesmo AP/switch/uplink
-  causando o problema (bem alinhado com o caso do TX-Retries do UniFi que
-  você já vinha investigando).
+- **Botão de manutenção** (⏸/▶ na coluna Ações): pausa ping e alertas do
+  equipamento sem excluir o cadastro. Status vira "Manutenção" (roxo).
+- **Exportar CSV**: botão na toolbar exporta a tabela inteira; dentro do log
+  de cada equipamento dá pra exportar o histórico de 24h. CSV com `;` e BOM,
+  abre direto no Excel brasileiro.
+- **Agrupar por local**: checkbox na toolbar agrupa a tabela por localização,
+  com contadores de offline/lentos por grupo.
+- **Traceroute sob demanda**: aba no modal de log executa traceroute até o
+  equipamento direto do servidor, pra investigar onde a latência estoura.
+- **Correlação de quedas** (`/correlation.html`): agrupa eventos de queda/lentidão
+  em janelas de tempo (2/5/10 min) e mostra quedas simultâneas — se vários
+  equipamentos caem juntos, a origem provável é o ponto em comum (AP, switch,
+  uplink). Inclui ranking de eventos por localização.
+- **Retenção de dados**: uma vez por dia, pings mais antigos que
+  `RETENTION_DETAIL_DAYS` (padrão 30) são compactados em agregados por hora
+  (tabela `ping_hourly`) e removidos do detalhe. Os gráficos de disponibilidade
+  seguem funcionando com o histórico antigo, só que agregado.
+- **Multiusuário com papéis**: administradores gerenciam equipamentos e usuários;
+  visualizadores só consultam. Gestão pelo botão "Usuários" na toolbar (admin).
+  Bancos criados na V1 são migrados automaticamente no startup.
+
+## Ideias para evoluir
+
+- **Telegram**: tão simples quanto o Discord (bot + chat_id). WhatsApp exige
+  API paga (Twilio, Meta Cloud API) ou gateway tipo Evolution API.
+- **MTR contínuo** e gráficos de perda por hop.
+- **Notificação de recuperação com duração da queda** ("voltou após 12min").

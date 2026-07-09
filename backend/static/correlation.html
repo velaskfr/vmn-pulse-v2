@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>VMN Pulse — Correlação de quedas</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+</head>
+<body>
+  <div class="topbar topbar-vmn">
+    <div class="topbar-brand">
+      <img src="/static/img/logo.svg" alt="VMN Tech">
+      <div class="brand-text">
+        <span class="brand-name">VMN <span class="gold">Pulse</span></span>
+        <span class="brand-company">VMN Tech</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" onclick="location.href='/'">⬅ Voltar para a tabela</button>
+      <button class="btn btn-danger" id="logout-btn">Sair</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label class="text-muted" style="font-size:13px;">Período:</label>
+    <select id="hours-select" style="padding:6px 10px; border:1px solid var(--grid-line); border-radius:4px;">
+      <option value="6">Últimas 6h</option>
+      <option value="24" selected>Últimas 24h</option>
+      <option value="72">Últimos 3 dias</option>
+      <option value="168">Últimos 7 dias</option>
+    </select>
+    <label class="text-muted" style="font-size:13px;">Janela de agrupamento:</label>
+    <select id="window-select" style="padding:6px 10px; border:1px solid var(--grid-line); border-radius:4px;">
+      <option value="2">2 min</option>
+      <option value="5" selected>5 min</option>
+      <option value="10">10 min</option>
+    </select>
+    <span id="total-events" class="text-muted" style="font-size:13px;"></span>
+  </div>
+
+  <div style="padding:18px; display:grid; grid-template-columns: 1fr 340px; gap:18px; align-items:start;">
+    <div style="background:#fff; border:1px solid var(--grid-line); border-radius:8px; padding:16px;">
+      <h3 style="margin-top:0; font-size:14px;">Quedas/lentidões simultâneas (2+ equipamentos na mesma janela)</h3>
+      <p class="text-muted" style="font-size:12px; margin-top:-6px;">
+        Se vários equipamentos caem juntos, a origem provável é o ponto em comum entre eles
+        (mesmo AP, switch ou uplink). Quedas isoladas apontam para o próprio equipamento.
+      </p>
+      <div id="clusters"></div>
+    </div>
+    <div style="background:#fff; border:1px solid var(--grid-line); border-radius:8px; padding:16px;">
+      <h3 style="margin-top:0; font-size:14px;">Eventos por localização</h3>
+      <table class="log-table">
+        <thead><tr><th>Local</th><th>Eventos</th><th>Equip. afetados</th></tr></thead>
+        <tbody id="by-location"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/static/js/api.js"></script>
+  <script>
+    requireAuth();
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      API.clearToken();
+      window.location.href = "/login.html";
+    });
+
+    const STATUS_LABEL = { offline: "Offline", warning: "Lento" };
+
+    async function load() {
+      const hours = document.getElementById("hours-select").value;
+      const win = document.getElementById("window-select").value;
+      const data = await API.get(`/api/monitoring/correlation?hours=${hours}&window_minutes=${win}`);
+
+      document.getElementById("total-events").textContent =
+        `${data.total_events} eventos no período · ${data.simultaneous_clusters.length} janelas com quedas simultâneas`;
+
+      const clustersEl = document.getElementById("clusters");
+      if (data.simultaneous_clusters.length === 0) {
+        clustersEl.innerHTML = '<p class="text-muted">Nenhuma queda simultânea no período. 👍</p>';
+      } else {
+        clustersEl.innerHTML = data.simultaneous_clusters
+          .map((c) => {
+            const start = new Date(c.window_start + "Z").toLocaleString("pt-BR");
+            const locs = [...new Set(c.devices.map((d) => d.location))].join(", ");
+            return `
+              <div style="border:1px solid var(--grid-line); border-left:4px solid var(--red); border-radius:0; padding:10px 12px; margin-bottom:10px;">
+                <div style="font-weight:700; margin-bottom:4px;">${start} — ${c.device_count} equipamentos afetados</div>
+                <div class="text-muted" style="font-size:12px; margin-bottom:6px;">Locais: ${locs}</div>
+                <table class="log-table">
+                  <tbody>
+                    ${c.devices
+                      .map(
+                        (d) => `<tr>
+                          <td>${d.name}</td>
+                          <td class="mono">${d.ip}</td>
+                          <td>${d.location}</td>
+                          <td><span class="status-pill status-${d.to_status}">${STATUS_LABEL[d.to_status] || d.to_status}</span></td>
+                          <td class="mono">${new Date(d.time + "Z").toLocaleTimeString("pt-BR")}</td>
+                        </tr>`
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>`;
+          })
+          .join("");
+      }
+
+      document.getElementById("by-location").innerHTML = data.by_location
+        .map((l) => `<tr><td>${l.location}</td><td class="mono">${l.events}</td><td class="mono">${l.devices_affected}</td></tr>`)
+        .join("") || '<tr><td colspan="3" class="text-muted">Sem eventos no período.</td></tr>';
+    }
+
+    document.getElementById("hours-select").addEventListener("change", load);
+    document.getElementById("window-select").addEventListener("change", load);
+    load();
+  </script>
+</body>
+</html>

@@ -27,8 +27,14 @@
     <span class="summary-chip" style="color:var(--green); border-color:var(--green-bg); background:var(--green-bg);">🟢 <span id="count-online">0</span> ativos</span>
     <span class="summary-chip" style="color:var(--yellow); border-color:var(--yellow-bg); background:var(--yellow-bg);">🟡 <span id="count-warning">0</span> lentos</span>
     <span class="summary-chip" style="color:var(--red); border-color:var(--red-bg); background:var(--red-bg);">🔴 <span id="count-offline">0</span> offline</span>
+    <label style="display:flex; align-items:center; gap:5px; font-size:13px; cursor:pointer;">
+      <input type="checkbox" id="group-toggle"> Agrupar por local
+    </label>
     <span style="flex:1"></span>
-    <button class="btn btn-primary" id="add-device-btn">+ Novo equipamento</button>
+    <button class="btn" onclick="location.href='/correlation.html'">🔎 Correlação de quedas</button>
+    <button class="btn" id="export-csv-btn">⬇ Exportar CSV</button>
+    <button class="btn admin-only" id="users-btn" style="display:none;">👤 Usuários</button>
+    <button class="btn btn-primary admin-only" id="add-device-btn" style="display:none;">+ Novo equipamento</button>
   </div>
 
   <div class="table-wrap">
@@ -107,9 +113,41 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="pings">Últimos pings</button>
         <button class="tab-btn" data-tab="events">Mudanças de status</button>
+        <button class="tab-btn" data-tab="trace">Traceroute</button>
+      </div>
+      <div style="margin-bottom:8px;">
+        <button class="btn btn-small" id="log-export-btn">⬇ Exportar histórico 24h (CSV)</button>
       </div>
       <div id="tab-pings"></div>
       <div id="tab-events" style="display:none;"></div>
+      <div id="tab-trace" style="display:none;">
+        <button class="btn btn-small btn-primary" id="trace-run-btn">▶ Executar traceroute</button>
+        <pre id="trace-output" class="mono" style="background:#0b0f16; color:#a7f3d0; padding:12px; border-radius:6px; font-size:12px; overflow:auto; min-height:80px; margin-top:10px;">Clique em "Executar traceroute" para investigar o caminho até o equipamento.</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de usuários -->
+  <div class="modal-backdrop" id="users-modal-backdrop" style="display:none;">
+    <div class="modal">
+      <button class="modal-close" id="users-modal-close">&times;</button>
+      <h2>Usuários do sistema</h2>
+      <table class="log-table" style="margin-bottom:14px;">
+        <thead><tr><th>Usuário</th><th>Papel</th><th></th></tr></thead>
+        <tbody id="users-list"></tbody>
+      </table>
+      <h3 style="font-size:13px; margin:0 0 8px;">Adicionar usuário</h3>
+      <form id="user-form">
+        <div class="form-row"><label>Usuário</label><input type="text" id="new-username" required></div>
+        <div class="form-row"><label>Senha</label><input type="password" id="new-password" required minlength="4"></div>
+        <div class="form-row"><label>Papel</label>
+          <select id="new-role" style="padding:7px 9px; border:1px solid var(--grid-line); border-radius:4px;">
+            <option value="viewer">Visualizador (só leitura)</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div class="modal-actions"><button type="submit" class="btn btn-primary">Adicionar</button></div>
+      </form>
     </div>
   </div>
 

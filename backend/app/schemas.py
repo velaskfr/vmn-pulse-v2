@@ -83,6 +83,43 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    role: str = "admin"
+
+
+class MeResponse(BaseModel):
+    username: str
+    role: str
+
+
+class UserCreate(BaseModel):
+    username: str = Field(..., max_length=80)
+    password: str = Field(..., min_length=4)
+    role: str = "viewer"
+
+
+class UserPasswordReset(BaseModel):
+    password: str = Field(..., min_length=4)
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    role: str
+
+    class Config:
+        from_attributes = True
+
+
+class CorrelationCluster(BaseModel):
+    window_start: datetime
+    device_count: int
+    devices: list[dict]
+
+
+class LocationSummary(BaseModel):
+    location: str
+    events: int
+    devices_affected: int
 
 
 class AvailabilityPoint(BaseModel):

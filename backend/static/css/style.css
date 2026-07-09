@@ -333,3 +333,6 @@ body.login-dark { background: var(--vmn-dark); }
 .topbar-vmn .btn:hover { background: #1b2433; }
 .topbar-vmn .btn-danger { color: #f87171; }
 .topbar-vmn .text-muted { color: #7d8aa0; }
+
+.status-maintenance { background: #e0e7ff; color: #4338ca; }
+.dot-maintenance { background: #4338ca; }

@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKey,
     Enum,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 
@@ -30,7 +31,25 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(80), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
+    role = Column(String(20), nullable=False, default="admin")  # admin | viewer
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PingHourly(Base):
+    """Agregados por hora, usados após a limpeza do histórico detalhado."""
+
+    __tablename__ = "ping_hourly"
+    __table_args__ = (UniqueConstraint("device_id", "hour", name="uq_ping_hourly"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(Integer, ForeignKey("devices.id", ondelete="CASCADE"), nullable=False, index=True)
+    hour = Column(DateTime, nullable=False, index=True)
+    total = Column(Integer, default=0)
+    ok = Column(Integer, default=0)
+    rtt_avg_ms = Column(Float, nullable=True)
+    rtt_min_ms = Column(Float, nullable=True)
+    rtt_max_ms = Column(Float, nullable=True)
+    loss_avg_pct = Column(Float, nullable=True)
 
 
 class Device(Base):
