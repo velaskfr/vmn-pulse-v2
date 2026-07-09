@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>VMN Pulse — Equipamentos</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+</head>
+<body>
+  <div class="topbar topbar-vmn">
+    <div class="topbar-brand">
+      <img src="/static/img/logo.svg" alt="VMN Tech">
+      <div class="brand-text">
+        <span class="brand-name">VMN <span class="gold">Pulse</span></span>
+        <span class="brand-company">VMN Tech</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="last-update" class="text-muted mono" style="font-size:12px;"></span>
+      <button class="btn" onclick="location.href='/device.html'">📊 Disponibilidade por equipamento</button>
+      <button class="btn btn-danger" id="logout-btn">Sair</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Buscar por nome, IP, local...">
+    <span class="summary-chip" style="color:var(--green); border-color:var(--green-bg); background:var(--green-bg);">🟢 <span id="count-online">0</span> ativos</span>
+    <span class="summary-chip" style="color:var(--yellow); border-color:var(--yellow-bg); background:var(--yellow-bg);">🟡 <span id="count-warning">0</span> lentos</span>
+    <span class="summary-chip" style="color:var(--red); border-color:var(--red-bg); background:var(--red-bg);">🔴 <span id="count-offline">0</span> offline</span>
+    <span style="flex:1"></span>
+    <button class="btn btn-primary" id="add-device-btn">+ Novo equipamento</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="grid" id="grid">
+      <thead>
+        <tr>
+          <th data-key="name">Nome</th>
+          <th data-key="ip">IP</th>
+          <th data-key="mac">MAC</th>
+          <th data-key="location">Localização</th>
+          <th data-key="current_status">Status</th>
+          <th data-key="last_rtt_ms">RTT último (ms)</th>
+          <th data-key="avg_rtt_1h_ms">Média 1h (ms)</th>
+          <th data-key="min_rtt_1h_ms">Mín 1h (ms)</th>
+          <th data-key="max_rtt_1h_ms">Máx 1h (ms)</th>
+          <th data-key="avg_loss_1h_pct">Perda 1h (%)</th>
+          <th data-key="availability_24h_pct">Disponib. 24h</th>
+          <th data-key="last_state_change_at">Desde quando</th>
+          <th data-key="offline_since_seconds">Tempo offline</th>
+          <th>Log</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="grid-body">
+      </tbody>
+    </table>
+    <div id="empty-state" class="empty-state" style="display:none;">
+      Nenhum equipamento cadastrado ainda. Clique em "+ Novo equipamento" para começar.
+    </div>
+  </div>
+
+  <!-- Modal cadastro/edição -->
+  <div class="modal-backdrop" id="device-modal-backdrop" style="display:none;">
+    <div class="modal">
+      <button class="modal-close" id="device-modal-close">&times;</button>
+      <h2 id="device-modal-title">Novo equipamento</h2>
+      <form id="device-form">
+        <input type="hidden" id="device-id">
+        <div class="form-row">
+          <label>Nome</label>
+          <input type="text" id="device-name" required placeholder="Ex: Switch Sala 3">
+        </div>
+        <div class="form-row">
+          <label>IP</label>
+          <input type="text" id="device-ip" required placeholder="Ex: 10.0.0.10">
+        </div>
+        <div class="form-row">
+          <label>MAC (opcional)</label>
+          <input type="text" id="device-mac" placeholder="Ex: AA:BB:CC:DD:EE:FF">
+        </div>
+        <div class="form-row">
+          <label>Localização (curta)</label>
+          <input type="text" id="device-location" placeholder="Ex: Sala 3 - Rack">
+        </div>
+        <div class="form-row">
+          <label>Limite de latência para "lento" (ms) — opcional, padrão global</label>
+          <input type="number" id="device-latency-warn" placeholder="Ex: 100">
+        </div>
+        <div class="form-row">
+          <label>Limite de perda para "lento" (%) — opcional, padrão global</label>
+          <input type="number" id="device-loss-warn" placeholder="Ex: 20">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="device-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de log -->
+  <div class="modal-backdrop" id="log-modal-backdrop" style="display:none;">
+    <div class="modal" style="width: 720px;">
+      <button class="modal-close" id="log-modal-close">&times;</button>
+      <h2 id="log-modal-title">Log do equipamento</h2>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="pings">Últimos pings</button>
+        <button class="tab-btn" data-tab="events">Mudanças de status</button>
+      </div>
+      <div id="tab-pings"></div>
+      <div id="tab-events" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

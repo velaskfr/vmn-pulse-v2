@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: netmonitor-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-netmonitor}
+      POSTGRES_USER: ${POSTGRES_USER:-netmonitor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - netmonitor_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-netmonitor}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ./backend
+    container_name: netmonitor-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-netmonitor}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-netmonitor}
+      SECRET_KEY: ${SECRET_KEY:-please-change-this-secret}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+      PING_INTERVAL_SECONDS: ${PING_INTERVAL_SECONDS:-60}
+      PING_COUNT: ${PING_COUNT:-4}
+      PING_CONCURRENCY: ${PING_CONCURRENCY:-20}
+      LATENCY_WARN_MS: ${LATENCY_WARN_MS:-100}
+      LOSS_WARN_PCT: ${LOSS_WARN_PCT:-20}
+      OFFLINE_CONFIRM_CYCLES: ${OFFLINE_CONFIRM_CYCLES:-2}
+    ports:
+      - "8000:8000"
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+
+volumes:
+  netmonitor_db_data:

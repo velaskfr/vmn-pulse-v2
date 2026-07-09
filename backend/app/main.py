@@ -1,0 +1,72 @@
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+from app.config import settings
+from app.database import Base, engine, SessionLocal
+from app.models import User
+from app.security import hash_password
+from app.scheduler import scheduler_loop
+from app.routers import auth, devices, monitoring
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("netmonitor")
+
+
+def seed_admin_user():
+    db = SessionLocal()
+    try:
+        exists = db.query(User).filter(User.username == settings.admin_user).first()
+        if not exists:
+            user = User(
+                username=settings.admin_user,
+                password_hash=hash_password(settings.admin_password),
+            )
+            db.add(user)
+            db.commit()
+            logger.info("Usuário admin '%s' criado.", settings.admin_user)
+    finally:
+        db.close()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    seed_admin_user()
+    task = asyncio.create_task(scheduler_loop())
+    logger.info("Aplicação iniciada.")
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="VMN Pulse", lifespan=lifespan)
+
+app.include_router(auth.router)
+app.include_router(devices.router)
+app.include_router(monitoring.router)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/")
+def index():
+    return FileResponse("static/index.html")
+
+
+@app.get("/device.html")
+def device_page():
+    return FileResponse("static/device.html")
+
+
+@app.get("/login.html")
+def login_page():
+    return FileResponse("static/login.html")
+
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}

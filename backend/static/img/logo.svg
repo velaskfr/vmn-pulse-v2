@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="60%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a2230"/>
+      <stop offset="100%" stop-color="#0b0f16"/>
+    </linearGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#8b0000"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Hexágono externo (borda em gradiente) -->
+  <polygon points="120,14 212,67 212,173 120,226 28,173 28,67"
+           fill="url(#hexGrad)" stroke="url(#borderGrad)" stroke-width="5"/>
+
+  <!-- Hexágono interno sutil -->
+  <polygon points="120,34 194,77 194,163 120,206 46,163 46,77"
+           fill="none" stroke="#2a3547" stroke-width="1.5"/>
+
+  <!-- Linha de pulso (heartbeat/ping) -->
+  <polyline points="42,130 78,130 92,130 104,96 118,164 132,78 146,150 156,130 170,130 198,130"
+            fill="none" stroke="url(#pulseGrad)" stroke-width="7"
+            stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+  <!-- Ponto vermelho-sangue: o "alerta" no fim do pulso -->
+  <circle cx="198" cy="130" r="9" fill="#8b0000" stroke="#e11d48" stroke-width="2.5" filter="url(#glow)"/>
+
+  <!-- Sigla VMN -->
+  <text x="120" y="188" text-anchor="middle"
+        font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800"
+        letter-spacing="6" fill="#d4af37">VMN</text>
+</svg>

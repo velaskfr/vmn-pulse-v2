@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>VMN Pulse — Disponibilidade</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="topbar topbar-vmn">
+    <div class="topbar-brand">
+      <img src="/static/img/logo.svg" alt="VMN Tech">
+      <div class="brand-text">
+        <span class="brand-name">VMN <span class="gold">Pulse</span></span>
+        <span class="brand-company">VMN Tech</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" onclick="location.href='/'">⬅ Voltar para a tabela</button>
+      <button class="btn btn-danger" id="logout-btn">Sair</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label class="text-muted" style="font-size:13px;">Equipamento:</label>
+    <select id="device-select" style="padding:6px 10px; border:1px solid var(--grid-line); border-radius:4px; min-width:260px;"></select>
+    <label class="text-muted" style="font-size:13px;">Período:</label>
+    <select id="days-select" style="padding:6px 10px; border:1px solid var(--grid-line); border-radius:4px;">
+      <option value="1">Últimas 24h</option>
+      <option value="7" selected>Últimos 7 dias</option>
+      <option value="30">Últimos 30 dias</option>
+    </select>
+  </div>
+
+  <div style="padding: 18px;">
+    <div id="device-info" style="margin-bottom: 16px; font-size: 13px; color: var(--text-muted);"></div>
+    <div style="background:#fff; border:1px solid var(--grid-line); border-radius:8px; padding:16px; margin-bottom:18px;">
+      <h3 style="margin-top:0; font-size:14px;">Disponibilidade por hora (%)</h3>
+      <canvas id="chart-availability" height="90"></canvas>
+    </div>
+    <div style="background:#fff; border:1px solid var(--grid-line); border-radius:8px; padding:16px;">
+      <h3 style="margin-top:0; font-size:14px;">Latência média por hora (ms)</h3>
+      <canvas id="chart-latency" height="90"></canvas>
+    </div>
+  </div>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/device.js"></script>
+</body>
+</html>
