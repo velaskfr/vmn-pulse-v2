@@ -31,6 +31,12 @@ UniFi), para ajudar a mapear origem de quedas/lentidão.
   por equipamento, período configurável (24h / 7 dias / 30 dias).
 - Login simples (usuário/senha + JWT) protegendo toda a aplicação.
 
+## Rodar em Raspberry Pi (appliance dedicado)
+
+Para instalar num Raspberry Pi 4 como appliance de monitoramento (com boot por
+SSD USB, que é o setup recomendado), veja o guia dedicado:
+[**RASPBERRY-PI.md**](RASPBERRY-PI.md).
+
 ## Como rodar
 
 Pré-requisitos: Docker e Docker Compose instalados no servidor onde vai hospedar.
