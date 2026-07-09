@@ -20,6 +20,7 @@ def _serialize(r: SpeedTestResult) -> dict:
         "upload_mbps": r.upload_mbps,
         "server_name": r.server_name,
         "isp": r.isp,
+        "wan_ip": r.wan_ip,
         "status": r.status,
         "error_message": r.error_message,
     }

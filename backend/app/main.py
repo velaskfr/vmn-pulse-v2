@@ -41,6 +41,9 @@ def run_migrations():
         conn.execute(text(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'admin'"
         ))
+        conn.execute(text(
+            "ALTER TABLE speedtest_results ADD COLUMN IF NOT EXISTS wan_ip VARCHAR(64)"
+        ))
         conn.commit()
 
 

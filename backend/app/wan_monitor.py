@@ -26,6 +26,7 @@ def _run_speedtest_blocking() -> dict:
         "upload_mbps": round((r.get("upload") or 0) / 1_000_000, 1),
         "server_name": f"{r['server'].get('sponsor', '')} - {r['server'].get('name', '')}".strip(" -"),
         "isp": (r.get("client") or {}).get("isp"),
+        "wan_ip": (r.get("client") or {}).get("ip"),
     }
 
 
@@ -57,6 +58,7 @@ async def run_wan_test():
                 upload_mbps=data["upload_mbps"],
                 server_name=data["server_name"],
                 isp=data["isp"],
+                wan_ip=data["wan_ip"],
                 status=status,
             )
         except Exception as exc:
@@ -78,7 +80,7 @@ async def run_wan_test():
             asyncio.create_task(
                 send_discord_alert(
                     device_name="Internet (Speedtest)",
-                    ip=row.isp or "WAN",
+                    ip=row.wan_ip or row.isp or "WAN",
                     location=row.server_name,
                     from_status=emoji_status.get(_last_status),
                     to_status=emoji_status.get(status, "unknown"),

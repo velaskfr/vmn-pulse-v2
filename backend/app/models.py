@@ -128,5 +128,6 @@ class SpeedTestResult(Base):
     upload_mbps = Column(Float, nullable=True)
     server_name = Column(String(200), nullable=True)
     isp = Column(String(120), nullable=True)
+    wan_ip = Column(String(64), nullable=True)  # IP publico de saida do teste
     status = Column(String(20), default="ok")  # ok | slow | error
     error_message = Column(Text, nullable=True)

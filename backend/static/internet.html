@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>VMN Pulse — Internet</title>
-<link rel="stylesheet" href="/static/css/style.css?v=2.1">
+<link rel="stylesheet" href="/static/css/style.css?v=2.2">
 <link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="topbar topbar-vmn">
@@ -50,13 +50,13 @@
     <div style="background:#fff; border:1px solid var(--grid-line); border-radius:8px; padding:16px;">
       <h3 style="margin-top:0; font-size:14px;">Testes recentes</h3>
       <table class="log-table">
-        <thead><tr><th>Data/hora</th><th>Status</th><th>Download</th><th>Upload</th><th>Ping</th><th>Servidor</th></tr></thead>
+        <thead><tr><th>Data/hora</th><th>Status</th><th>Download</th><th>Upload</th><th>Ping</th><th>IP de saída</th><th>Servidor</th></tr></thead>
         <tbody id="tests-table"></tbody>
       </table>
     </div>
   </div>
 
-  <script src="/static/js/api.js?v=2.1"></script>
+  <script src="/static/js/api.js?v=2.2"></script>
   <script>
     requireAuth();
     document.getElementById("logout-btn").addEventListener("click", () => {
@@ -99,6 +99,7 @@
         card("Download", r.download_mbps, "Mbps", `mínimo esperado: ${thresholds.min_download_mbps}`, "var(--vmn-green, #22c55e)") +
         card("Upload", r.upload_mbps, "Mbps", `mínimo esperado: ${thresholds.min_upload_mbps}`, "var(--vmn-gold, #d4af37)") +
         card("Ping", r.ping_ms, "ms", `máximo esperado: ${thresholds.max_ping_ms}`, "var(--accent)") +
+        card("IP de saída", r.wan_ip || "-", "", "por qual link o teste saiu", "var(--vmn-blood, #8b0000)") +
         card("Provedor / Servidor", r.isp || "-", "", r.server_name || "", "var(--grid-line)");
     }
 
@@ -108,6 +109,12 @@
 
       const labels = rows.map((r) => new Date(r.timestamp + "Z").toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }));
 
+      renderTable(rows);
+
+      if (typeof Chart === "undefined") {
+        console.warn("Chart.js não carregou; exibindo apenas a tabela.");
+        return;
+      }
       if (speedChart) speedChart.destroy();
       if (pingChart) pingChart.destroy();
 
@@ -133,6 +140,9 @@
         options: { plugins: { legend: { display: false } } },
       });
 
+    }
+
+    function renderTable(rows) {
       document.getElementById("tests-table").innerHTML = rows
         .slice()
         .reverse()
@@ -145,10 +155,11 @@
             <td class="mono">${r.download_mbps ?? "-"} Mbps</td>
             <td class="mono">${r.upload_mbps ?? "-"} Mbps</td>
             <td class="mono">${r.ping_ms ?? "-"} ms</td>
+            <td class="mono">${r.wan_ip || "-"}</td>
             <td class="text-muted">${r.server_name || "-"}</td>
           </tr>`;
         })
-        .join("") || '<tr><td colspan="6" class="text-muted">Sem testes no período.</td></tr>';
+        .join("") || '<tr><td colspan="7" class="text-muted">Sem testes no período.</td></tr>';
     }
 
     async function init() {
