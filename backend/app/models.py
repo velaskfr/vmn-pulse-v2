@@ -116,3 +116,17 @@ class AlertEvent(Base):
     discord_sent = Column(Boolean, default=False)
 
     device = relationship("Device", back_populates="alert_events")
+
+
+class SpeedTestResult(Base):
+    __tablename__ = "speedtest_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    ping_ms = Column(Float, nullable=True)
+    download_mbps = Column(Float, nullable=True)
+    upload_mbps = Column(Float, nullable=True)
+    server_name = Column(String(200), nullable=True)
+    isp = Column(String(120), nullable=True)
+    status = Column(String(20), default="ok")  # ok | slow | error
+    error_message = Column(Text, nullable=True)

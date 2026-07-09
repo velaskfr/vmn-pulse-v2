@@ -130,6 +130,25 @@ netmonitor/
   visualizadores só consultam. Gestão pelo botão "Usuários" na toolbar (admin).
   Bancos criados na V1 são migrados automaticamente no startup.
 
+## Monitor de qualidade da internet (speedtest)
+
+Página **🌐 Internet** na toolbar: mostra status atual (Normal/Lenta/Falha),
+cards de download, upload e ping, gráficos históricos e tabela de testes.
+
+- Teste automático a cada `SPEEDTEST_INTERVAL_MINUTES` (padrão 10 min).
+  **Atenção:** cada speedtest consome banda real (pode passar de 100 MB em
+  links rápidos) e satura o link por ~30s, o que afeta momentaneamente os
+  pings dos equipamentos. Em produção, considere 30 ou 60 min.
+- Limites configuráveis: `SPEEDTEST_MIN_DOWNLOAD_MBPS`, `SPEEDTEST_MIN_UPLOAD_MBPS`,
+  `SPEEDTEST_MAX_PING_MS`. Ajuste para o plano contratado do link (ex: plano de
+  500 Mbps → mínimo 350 já indica degradação).
+- Alerta no Discord nas transições (Normal → Lenta, Lenta → Normal, falha),
+  seguindo a mesma lógica dos equipamentos.
+- Botão "Testar agora" (admin) dispara um teste manual.
+- Dica complementar: cadastre um IP externo (8.8.8.8 ou 1.1.1.1) como
+  equipamento com localização "WAN" — o ping por minuto mede latência/perda
+  do link continuamente, sem consumir banda.
+
 ## Ideias para evoluir
 
 - **Telegram**: tão simples quanto o Discord (bot + chat_id). WhatsApp exige

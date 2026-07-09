@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     offline_confirm_cycles: int = 2
     retention_detail_days: int = 30
 
+    speedtest_enabled: bool = True
+    speedtest_interval_minutes: int = 10
+    speedtest_min_download_mbps: float = 100.0
+    speedtest_min_upload_mbps: float = 20.0
+    speedtest_max_ping_ms: float = 60.0
+
     class Config:
         env_file = ".env"
         case_sensitive = False
