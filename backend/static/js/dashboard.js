@@ -89,7 +89,7 @@ function rowHtml(d) {
   return `
     <tr>
       <td>${d.name}</td>
-      <td class="mono">${d.ip}</td>
+      <td class="mono">${d.ip}${d.check_type === "tcp" ? `:${d.tcp_port || 443} <span class="status-pill status-maintenance" style="font-size:10px; padding:1px 6px;">TCP</span>` : ""}</td>
       <td class="mono text-muted">${d.mac || "-"}</td>
       <td>${d.location || "-"}</td>
       <td>${statusPill(d.current_status)}</td>
@@ -187,8 +187,18 @@ function openAdd() {
   document.getElementById("device-modal-title").textContent = "Novo equipamento";
   document.getElementById("device-form").reset();
   document.getElementById("device-id").value = "";
+  syncCheckType();
   deviceModal.style.display = "flex";
 }
+
+function syncCheckType() {
+  const isTcp = document.getElementById("device-check-type").value === "tcp";
+  document.getElementById("tcp-port-row").style.display = isTcp ? "" : "none";
+  if (isTcp && !document.getElementById("device-tcp-port").value) {
+    document.getElementById("device-tcp-port").value = 443;
+  }
+}
+document.getElementById("device-check-type").addEventListener("change", syncCheckType);
 
 function openEdit(id) {
   const d = allDevices.find((x) => x.id === id);
@@ -199,6 +209,9 @@ function openEdit(id) {
   document.getElementById("device-ip").value = d.ip;
   document.getElementById("device-mac").value = d.mac || "";
   document.getElementById("device-location").value = d.location || "";
+  document.getElementById("device-check-type").value = d.check_type || "icmp";
+  document.getElementById("device-tcp-port").value = d.tcp_port || "";
+  syncCheckType();
   deviceModal.style.display = "flex";
 }
 
@@ -214,7 +227,13 @@ document.getElementById("device-form").addEventListener("submit", async (e) => {
     ip: document.getElementById("device-ip").value.trim(),
     mac: document.getElementById("device-mac").value.trim() || null,
     location: document.getElementById("device-location").value.trim() || null,
+    check_type: document.getElementById("device-check-type").value,
   };
+  if (payload.check_type === "tcp") {
+    payload.tcp_port = parseInt(document.getElementById("device-tcp-port").value) || 443;
+  } else {
+    payload.tcp_port = null;
+  }
   const latencyWarn = document.getElementById("device-latency-warn").value;
   const lossWarn = document.getElementById("device-loss-warn").value;
   if (latencyWarn) payload.latency_warn_ms = parseInt(latencyWarn);

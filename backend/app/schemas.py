@@ -11,6 +11,8 @@ class DeviceCreate(BaseModel):
     location: Optional[str] = Field(None, max_length=120)
     latency_warn_ms: Optional[int] = None
     loss_warn_pct: Optional[int] = None
+    check_type: str = Field("icmp", pattern="^(icmp|tcp)$")
+    tcp_port: Optional[int] = Field(None, ge=1, le=65535)
 
 
 class DeviceUpdate(BaseModel):
@@ -21,6 +23,8 @@ class DeviceUpdate(BaseModel):
     is_active: Optional[bool] = None
     latency_warn_ms: Optional[int] = None
     loss_warn_pct: Optional[int] = None
+    check_type: Optional[str] = Field(None, pattern="^(icmp|tcp)$")
+    tcp_port: Optional[int] = Field(None, ge=1, le=65535)
 
 
 class DeviceOut(BaseModel):
@@ -30,6 +34,8 @@ class DeviceOut(BaseModel):
     mac: Optional[str]
     location: Optional[str]
     is_active: bool
+    check_type: str = "icmp"
+    tcp_port: Optional[int] = None
     current_status: str
     last_seen_at: Optional[datetime]
     last_state_change_at: Optional[datetime]

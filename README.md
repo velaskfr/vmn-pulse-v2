@@ -136,6 +136,19 @@ netmonitor/
   visualizadores só consultam. Gestão pelo botão "Usuários" na toolbar (admin).
   Bancos criados na V1 são migrados automaticamente no startup.
 
+## Verificação TCP (hosts que não respondem ping)
+
+Muitos hosts na nuvem (AWS, CDNs) bloqueiam ICMP e apareceriam sempre offline.
+No cadastro, escolha **Tipo de verificação = TCP** e informe a porta (padrão 443):
+o Pulse mede o tempo de conexão (handshake) e usa a mesma lógica de status,
+perda, histórico, gráficos e alertas dos equipamentos ICMP.
+
+- Aceita **hostname** e o resolve a cada tentativa, acompanhando mudanças de IP.
+- Útil para o cloud da Technogym: `services.mywellness.com:443`, `mywellness.com:443`.
+- Antes de cadastrar, valide: `nc -zv services.mywellness.com 443`.
+- Um host com erro (DNS, porta fechada) afeta só ele; os demais seguem normais.
+- Bancos existentes são migrados automaticamente no startup.
+
 ## Monitor de qualidade da internet (speedtest)
 
 Página **🌐 Internet** na toolbar: mostra status atual (Normal/Lenta/Falha),

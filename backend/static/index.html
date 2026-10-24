@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>VMN Pulse — Equipamentos</title>
-<link rel="stylesheet" href="/static/css/style.css?v=2.2">
+<link rel="stylesheet" href="/static/css/style.css?v=2.3">
 <link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
 </head>
 <body>
@@ -79,8 +79,19 @@
           <input type="text" id="device-name" required placeholder="Ex: Switch Sala 3">
         </div>
         <div class="form-row">
-          <label>IP</label>
-          <input type="text" id="device-ip" required placeholder="Ex: 10.0.0.10">
+          <label>IP ou hostname</label>
+          <input type="text" id="device-ip" required placeholder="Ex: 10.0.0.10 ou services.mywellness.com">
+        </div>
+        <div class="form-row">
+          <label>Tipo de verificação</label>
+          <select id="device-check-type" style="padding:7px 9px; border:1px solid var(--grid-line); border-radius:4px;">
+            <option value="icmp">ICMP (ping) — equipamentos de rede</option>
+            <option value="tcp">TCP (conexão em porta) — hosts que não respondem ping</option>
+          </select>
+        </div>
+        <div class="form-row" id="tcp-port-row" style="display:none;">
+          <label>Porta TCP</label>
+          <input type="number" id="device-tcp-port" min="1" max="65535" placeholder="443">
         </div>
         <div class="form-row">
           <label>MAC (opcional)</label>
@@ -152,7 +163,7 @@
     </div>
   </div>
 
-  <script src="/static/js/api.js?v=2.2"></script>
-  <script src="/static/js/dashboard.js?v=2.2"></script>
+  <script src="/static/js/api.js?v=2.3"></script>
+  <script src="/static/js/dashboard.js?v=2.3"></script>
 </body>
 </html>

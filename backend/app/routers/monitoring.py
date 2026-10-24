@@ -76,6 +76,8 @@ def build_status_rows(db: Session) -> list[DeviceStatsOut]:
                 mac=device.mac,
                 location=device.location,
                 is_active=device.is_active,
+                check_type=device.check_type or "icmp",
+                tcp_port=device.tcp_port,
                 current_status=status_value,
                 last_seen_at=device.last_seen_at,
                 last_state_change_at=device.last_state_change_at,

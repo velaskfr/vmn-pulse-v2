@@ -6,7 +6,7 @@ from app.config import settings
 from app.database import SessionLocal
 from app.discord_alert import send_discord_alert
 from app.models import Device, PingResult, AlertEvent, DeviceStatus
-from app.ping_service import ping_batch, PingOutcome
+from app.ping_service import ping_batch, tcp_batch, PingOutcome
 
 logger = logging.getLogger("netmonitor.scheduler")
 
@@ -28,12 +28,18 @@ async def _run_cycle():
         if not devices:
             return
 
-        ip_list = [d.ip for d in devices]
-        outcomes = await ping_batch(ip_list)
+        icmp_targets = [d.ip for d in devices if (d.check_type or "icmp") != "tcp"]
+        tcp_targets = [(d.ip, d.tcp_port or 443) for d in devices if d.check_type == "tcp"]
+        icmp_outcomes, tcp_outcomes = await asyncio.gather(
+            ping_batch(icmp_targets), tcp_batch(tcp_targets)
+        )
         now = datetime.utcnow()
 
         for device in devices:
-            outcome = outcomes.get(device.ip)
+            if device.check_type == "tcp":
+                outcome = tcp_outcomes.get((device.ip, device.tcp_port or 443))
+            else:
+                outcome = icmp_outcomes.get(device.ip)
             if outcome is None:
                 # não deveria acontecer, mas por segurança tratamos como offline
                 outcome = PingOutcome(device.ip, settings.ping_count, 0, 100.0, None, None, None, False)

@@ -44,6 +44,12 @@ def run_migrations():
         conn.execute(text(
             "ALTER TABLE speedtest_results ADD COLUMN IF NOT EXISTS wan_ip VARCHAR(64)"
         ))
+        conn.execute(text(
+            "ALTER TABLE devices ADD COLUMN IF NOT EXISTS check_type VARCHAR(10) NOT NULL DEFAULT 'icmp'"
+        ))
+        conn.execute(text(
+            "ALTER TABLE devices ADD COLUMN IF NOT EXISTS tcp_port INTEGER"
+        ))
         conn.commit()
 
 

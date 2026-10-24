@@ -17,11 +17,20 @@ def list_devices(db: Session = Depends(get_db)):
 
 @router.post("", response_model=DeviceOut, status_code=201, dependencies=admin_dep)
 def create_device(payload: DeviceCreate, db: Session = Depends(get_db)):
-    existing = db.query(Device).filter(Device.ip == payload.ip).first()
+    data = payload.model_dump()
+    if data["check_type"] == "tcp" and not data.get("tcp_port"):
+        data["tcp_port"] = 443
+    if data["check_type"] != "tcp":
+        data["tcp_port"] = None
+    existing = (
+        db.query(Device)
+        .filter(Device.ip == data["ip"], Device.check_type == data["check_type"], Device.tcp_port.is_(None) if data["tcp_port"] is None else Device.tcp_port == data["tcp_port"])
+        .first()
+    )
     if existing:
-        raise HTTPException(status_code=400, detail="Já existe um equipamento cadastrado com esse IP")
+        raise HTTPException(status_code=400, detail="Já existe um equipamento cadastrado com esse IP/host (e porta)")
 
-    device = Device(**payload.model_dump())
+    device = Device(**data)
     db.add(device)
     db.commit()
     db.refresh(device)

@@ -62,6 +62,8 @@ class Device(Base):
     location = Column(String(120), nullable=True)
 
     is_active = Column(Boolean, default=True)  # monitoramento ligado/pausado
+    check_type = Column(String(10), nullable=False, default="icmp", server_default="icmp")  # icmp | tcp
+    tcp_port = Column(Integer, nullable=True)  # usado quando check_type == tcp
 
     # limites específicos do equipamento (opcional, senão usa os globais)
     latency_warn_ms = Column(Integer, nullable=True)
